@@ -1,6 +1,8 @@
 package com.demn.weathertestapp.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +33,7 @@ fun NavigationHost(modifier: Modifier = Modifier) {
         composable(Routes.Home.route) {
             HomeScreen(
                 onCityClick = { id -> navController.navigate("${Routes.Weather}/$id") },
-                modifier
+                modifier.fillMaxSize()
             )
         }
 
@@ -42,6 +44,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             WeatherScreen(
                 cityId = backStackEntry.arguments?.getLong(cityIdArgument) ?: 0,
                 modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
             )
         }
     }

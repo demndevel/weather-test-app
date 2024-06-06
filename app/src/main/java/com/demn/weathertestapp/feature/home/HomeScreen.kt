@@ -5,10 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -24,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawScope
@@ -46,6 +51,7 @@ import com.demn.core.models.City
 import com.demn.data.repos.MockWeatherRepository
 import com.demn.weathertestapp.R
 import com.demn.weathertestapp.ui.theme.WeatherTestAppTheme
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 private val GutterWidth = 40.dp
@@ -147,6 +153,15 @@ fun StickyLetterList(
     }
     val initialColor = MaterialTheme.colorScheme.secondary
     val initialTextStyle: TextStyle = MaterialTheme.typography.labelMedium
+    val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
+    val statusBarHeight = statusBarPadding.calculateTopPadding()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(items) {
+        coroutineScope.launch {
+            state.animateScrollToItem(0)
+        }
+    }
 
     Box(
         modifier = modifier
@@ -160,7 +175,8 @@ fun StickyLetterList(
                         textMeasurer,
                         initialTextStyle,
                         gutterPx,
-                        initialColor
+                        initialColor,
+                        statusBarHeight
                     )
                 }
                 .padding(start = 16.dp)
@@ -171,6 +187,10 @@ fun StickyLetterList(
                     .fillMaxSize()
                     .padding(start = gutterWidth)
             ) {
+                item {
+                    Spacer(Modifier.statusBarsPadding())
+                }
+
                 items(items) { item ->
                     itemFactory(item)
                 }
@@ -185,7 +205,8 @@ private fun CacheDrawScope.drawResult(
     textMeasurer: TextMeasurer,
     initialTextStyle: TextStyle,
     gutterPx: Float,
-    initialColor: Color
+    initialColor: Color,
+    statusBarHeight: Dp
 ): DrawResult {
     var itemHeight = 0
     return onDrawBehind {
@@ -203,7 +224,8 @@ private fun CacheDrawScope.drawResult(
                     style = initialTextStyle,
                 )
                 val horizontalOffset = (gutterPx - textLayout.size.width) / 2
-                val verticalOffset = (itemHeight - textLayout.size.height) / 2
+                val verticalOffset =
+                    (itemHeight - textLayout.size.height + statusBarHeight.toPx() * 2) / 2
                 drawText(
                     textLayoutResult = textLayout,
                     color = initialColor,

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,12 +43,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WeatherTestAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(Modifier.padding(innerPadding)) {
-                        NavigationHost(
-                            Modifier.fillMaxSize()
-                        )
-                    }
+                Surface {
+                    NavigationHost(
+                        Modifier.fillMaxSize()
+                    )
                 }
             }
         }
