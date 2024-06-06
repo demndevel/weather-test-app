@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">weather test app</string>
+    <string name="refresh">Обновить</string>
+    <string name="error_occured">Произошла ошибка</string>
+</resources>
