@@ -22,7 +22,6 @@ class WeatherApiImpl(private val apiKey: String) : WeatherApi {
         latitude: String
     ): Result<WeatherDto> {
         try {
-            println(apiKey)
             val response = client.get(apiUrl) {
                 url {
                     parameters.append("lat", latitude)
