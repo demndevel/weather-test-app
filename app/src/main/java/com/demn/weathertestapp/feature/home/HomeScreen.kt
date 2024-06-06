@@ -223,9 +223,12 @@ private fun CacheDrawScope.drawResult(
                     text = AnnotatedString(itemInitial.toString()),
                     style = initialTextStyle,
                 )
+
                 val horizontalOffset = (gutterPx - textLayout.size.width) / 2
                 val verticalOffset =
-                    (itemHeight - textLayout.size.height + statusBarHeight.toPx() * 2) / 2
+                    if (index == 0) (itemHeight - textLayout.size.height) / 2 + statusBarHeight.toPx()
+                    else (itemHeight - textLayout.size.height) / 2f
+
                 drawText(
                     textLayoutResult = textLayout,
                     color = initialColor,
