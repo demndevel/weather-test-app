@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -40,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -194,6 +197,10 @@ fun StickyLetterList(
                 items(items) { item ->
                     itemFactory(item)
                 }
+
+                item {
+                    Spacer(Modifier.navigationBarsPadding())
+                }
             }
         }
     }
@@ -208,6 +215,7 @@ private fun CacheDrawScope.drawResult(
     initialColor: Color,
     statusBarHeight: Dp
 ): DrawResult {
+    val additionalVerticalOffset = 82.dp
     var itemHeight = 0
     return onDrawBehind {
         var initial: Char? = null
@@ -225,24 +233,50 @@ private fun CacheDrawScope.drawResult(
                 )
 
                 val horizontalOffset = (gutterPx - textLayout.size.width) / 2
-                val verticalOffset =
-                    if (index == 0) (itemHeight - textLayout.size.height) / 2 + statusBarHeight.toPx()
-                    else (itemHeight - textLayout.size.height) / 2f
+                val verticalOffset = calculateVerticalOffset(
+                    index,
+                    itemHeight,
+                    textLayout,
+                    statusBarHeight.toPx(),
+                    additionalVerticalOffset.toPx(),
+                    itemInitial,
+                    nextInitial,
+                    itemInfo
+                )
 
                 drawText(
                     textLayoutResult = textLayout,
                     color = initialColor,
                     topLeft = Offset(
                         x = horizontalOffset,
-                        y = if (index != 0 || itemInitial != nextInitial) {
-                            itemInfo.offset.toFloat()
-                        } else {
-                            0f
-                        } + verticalOffset,
+                        y = verticalOffset,
                     ),
                 )
             }
         }
+    }
+}
+
+fun calculateVerticalOffset(
+    index: Int,
+    itemHeight: Int,
+    textLayout: TextLayoutResult,
+    statusBarHeight: Float,
+    additionalVerticalOffset: Float,
+    itemInitial: Char?,
+    nextInitial: Char?,
+    itemInfo: LazyListItemInfo
+): Float {
+    val itemOffset = if (index != 0 || itemInitial != nextInitial) {
+        itemInfo.offset.toFloat()
+    } else {
+        0f
+    }
+
+    return itemOffset + if (index == 0) {
+        (itemHeight - textLayout.size.height) / 2 + statusBarHeight
+    } else {
+        (itemHeight + additionalVerticalOffset - textLayout.size.height) / 2f
     }
 }
 
